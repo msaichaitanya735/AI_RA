@@ -58,7 +58,7 @@ AI_RA/
 
 ## 🧩 Architecture Diagram
 
-(./images/architecture-diagram.png)
+![Architecture Diagram](./images/architecture-diagram.png)
 
 ```
 Google Sheets → Apps Script → Webhook → n8n (Docker) → GPT → Regex → LaTeX → Overleaf (manual PDF) → Google Drive (planned)
