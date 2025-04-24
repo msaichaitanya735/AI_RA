@@ -1,0 +1,2501 @@
+{
+  "name": "ResumeBuilder",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e992ba5e-3e27-4c59-b06c-ad55d8dc4d0a",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1600,
+        900
+      ],
+      "id": "0b7a353c-4fcc-4619-a5ea-875d6ea694a8",
+      "name": "Webhook",
+      "webhookId": "e992ba5e-3e27-4c59-b06c-ad55d8dc4d0a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert in resume optimization, job description analysis and classifying them for ATS-friendly resume. Your task is to extract and classify all important terms and keywords from the job description below into meaningful, structured categories that will help personalize and optimize a resume.\n\nUse the following strict definitions when classifying Hard Skills. Do NOT guess or loosely group keywords. If unsure, leave them out or assign to EmbeddedKeywords.\n-Output should not be in JSON. It should be plain text without any intro statements like \"here are the list, ok let me give you the list\"\n- Do not include HTML or CSS under Languages\n- Do not place Docker, Kubernetes, CI/CD tools under Tools and More — these go under Cloud and DevOps\n- Include concepts like Machine Learning and iOS only if they’re real skills/tools, and assign them accurately under Backend or Frontend\n- Return only categories that contain items\n- Split out Mobile Development from Frontend\n- Add Artificaial intelligence / machine learning as a separate Hard Skill subcategory\n\nReturn your results with the following groups:\n\n---\n\n### 🔹 1. HardSkills\nInclude only technologies, tools, platforms, programming languages, or frameworks that can be listed in the “Skills” section of a resume.\n\nSubcategories:\n- Languages\n- Frontend Development\n- Backend Development\n- Cloud and DevOps\n- Databases\n- Testing & Debugging\n- Tools and More\n\n\n### 🔹 2. EmbeddedKeywords\nThese are theoretical, conceptual, or academic terms that don’t belong in the Skills section, but are useful to embed in summaries, project descriptions, or experience bullets.Return only categories that contain at least one item. If a category is empty, exclude it .\n\nExamples: `parallelism`, `asymptotic complexity`, `data transformation algorithms`, `compiler design`.\n\n---\n\n### 🔹 3. SoftSkills\nTraits like leadership, collaboration, time management, etc.  \nExtract only those explicitly mentioned or clearly implied by the job description.\n\n---\n\n### 🔹 4. Qualifications\nIncludes degrees, certifications, or credentials (e.g., “Bachelor’s in CS”, “AWS Certified Developer”).\n\n---\n\n### 🔹 5. RoleFunctions\nImportant action verbs and role-specific functions such as `develop`, `deploy`, `optimize`, `collaborate`, `design`, etc.\n\n### 🔹 6. Achievements (Optional Bonus)\nExtract short **impact-driven achievement phrases** or patterns that describe success, growth, or outcomes — e.g., “reduced latency by 40%”, “led a team of 5 engineers”.\n\n{{ $json.body.rowData['JOB DESCRIPTION'] }}\n\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -1340,
+        720
+      ],
+      "id": "621b7921-cea6-4ca3-be10-a51d23b78899",
+      "name": "Basic LLM Chain1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1220,
+        580
+      ],
+      "id": "cba8ba44-8ed5-476f-886c-3bb267391871",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KVsqjlc99pwthAO6",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You can understand job market skills and resume optimization. You know different names of the same skill like Javascript and JS. So combine them such that there are not duplicate things exist in the output following the strict rules. -Output ONLY the requested information in a clean, structured format suitable for direct insertion into a spreadsheet. Do not include any introductory phrases, explanations, summaries, or conversational filler. \n\n{{ $('Basic LLM Chain1').item.json.text }}\n\nResume Keywords: • Languages: JavaScript (ES6+), TypeScript, Java, Python, SQL, C++ \n• Frontend: React.js, Next.js, Redux, HTML, CSS, Bootstrap, Tailwind CSS \n• Backend: Node.js, Express.js, Spring Boot \n• Databases: MongoDB, PostgreSQL, MySQL \n• Cloud & DevOps: AWS (EC2, S3, Lambda), Git, CI/CD Pipelines \n• Other: Web Performance Optimization, UI/UX Best Practices, REST APIs, Agile Methodologies, Windows, iOS, Github  "
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -800,
+        680
+      ],
+      "id": "507d024b-1c5a-4598-a5d9-1f65eeb40ae8",
+      "name": "Basic LLM Chain2",
+      "executeOnce": false,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        540
+      ],
+      "id": "31fa6380-b304-4b7f-afdf-cb84826c99d6",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KVsqjlc99pwthAO6",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM",
+          "mode": "list",
+          "cachedResultName": "JobApplicationAutomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $('Webhook').item.json.body.rowIndex }}",
+            "Skills(Keywords Extracted)": "={{ $json.text }}",
+            "STATUS": "Updating KeyWords"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPANY",
+              "displayName": "COMPANY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB TITLE",
+              "displayName": "JOB TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB DESCRIPTION",
+              "displayName": "JOB DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED COVER LETTER LINK",
+              "displayName": "GENERATED COVER LETTER LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED RESUME LINK",
+              "displayName": "GENERATED RESUME LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "APPLICATOIN STATUS",
+              "displayName": "APPLICATOIN STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misson and Values",
+              "displayName": "Misson and Values",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills(Keywords Extracted)",
+              "displayName": "Skills(Keywords Extracted)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -960,
+        720
+      ],
+      "id": "4420f4bd-6b5a-4c1c-82b1-65e2735fcb3f",
+      "name": "Updating KeyWords",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3G95HAVCZ7KUxnEZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM",
+          "mode": "list",
+          "cachedResultName": "JobApplicationAutomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $('Webhook').item.json.body.rowIndex }}",
+            "Refined Keywords": "={{ $json.text }}",
+            "APPLICATOIN STATUS": "Updating Refined Keywords"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPANY",
+              "displayName": "COMPANY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB TITLE",
+              "displayName": "JOB TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB DESCRIPTION",
+              "displayName": "JOB DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED COVER LETTER LINK",
+              "displayName": "GENERATED COVER LETTER LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED RESUME LINK",
+              "displayName": "GENERATED RESUME LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "APPLICATOIN STATUS",
+              "displayName": "APPLICATOIN STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misson and Values",
+              "displayName": "Misson and Values",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills(Keywords Extracted)",
+              "displayName": "Skills(Keywords Extracted)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Refined Keywords",
+              "displayName": "Refined Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "General Cover Letter",
+              "displayName": "General Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -440,
+        720
+      ],
+      "id": "38722889-d336-40c6-928f-6005f48e6144",
+      "name": "Updating Refined Keywords",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3G95HAVCZ7KUxnEZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Return ONLY LaTeX-formatted output using this structure: Output ONLY the requested information in a clean, structured format suitable for direct insertion into a spreadsheet. Do not include any introductory phrases, explanations, summaries, or conversational filler. You are a Resume Summary Optimization Assistant. You are a Resume Summary Optimization Assistant.\n\nYour job is to write a strong 3–5 sentence **Summary section** for the top of a resume. This summary should:\n-Always mention as 4+ years experienced\n- Use **refined keywords** that combine job description and resume skills\n- Mention specific **technical stacks** (e.g., React, Node.js, AWS, PostgreSQL)\n- Mention **soft skills** or role functions if available (e.g., communication, collaboration, implement, lead)\n- Use a confident, clean, and professional tone\n- Be output in plain text only (no bullets, no markdown)\n- Escape percentage signs using `\\%`. Important!!\n- use this `\\textbf{ }` to bold required words from refined skills \n\n\nThe output must be suitable for inserting directly into a resume's Summary section.Please write a resume Summary section based on the following inputs:\n\n\n🎯 Refined Keywords (combined from JD and Resume):| \n{{ $('Updating Refined Keywords').item.json['Refined Keywords'] }}\n\n👤 Resume Background:\n{\n  \"name\": \"SaiChaitanya Muthyala\",\n  \"location\": \"Overland Park, KS\",\n  \"email\": \"saichaitanyamuthyalas@gmail.com\",\n  \"phone\": \"+1 913-200-0755\",\n  \"website\": \"https://www.saichaitanyamuthyala.com/\",\n  \"linkedin\": \"https://www.linkedin.com/in/saichaitanya-muthyala-3204a71a0\",\n  \"github\": \"https://github.com/msaichaitanya735\",\n  \"summary\": \"Software Engineering professional with 4+ years of experience in full stack development specializing in scalable and efficient web applications using React.js, Next.js, and TypeScript for frontend and Spring Boot, Node.js, Express.js, and GraphQL for backend. Experienced in leading cross-functional teams, mentoring developers, and implementing DevOps practices for seamless deployment.\",\n  \"education\": [\n    {\n      \"degree\": \"MS in Computer Science\",\n      \"institution\": \"University of Central Missouri\",\n      \"duration\": \"Aug 2023 – May 2025\",\n      \"highlights\": [\"Expertise in Advanced Database Systems, Advanced Algorithms, and practical data science techniques.\"]\n    },\n    {\n      \"degree\": \"BTech in Computer Science\",\n      \"institution\": \"Jawaharlal Nehru Technological University Hyderabad\",\n      \"duration\": \"Aug 2017 – May 2021\",\n      \"highlights\": [\"Founded and led 'coding.Studio();', a coding club focused on self-learning and competitive programming.\"]\n    }\n  ],\n  \"experience\": [\n    {\n      \"title\": \"Programmer Analyst\",\n      \"company\": \"Cognizant Technology Solutions (Client: Pearson)\",\n      \"location\": \"Hyderabad, India\",\n      \"duration\": \"Jul 2021 – Jun 2023\",\n      \"highlights\": [\n        \"Optimized Pearson's website UI performance by 40% and reduced rendering time by 30% using React.js, Next.js, and TypeScript.\",\n        \"Coordinated cross-functional teams improving team efficiency by 30%.\",\n        \"Developed 30+ reusable UI components with accessibility and code splitting; secured app with JWT and OAuth.\",\n        \"Processed 5M+ records in data migration and reduced backend API response time by 35%.\"\n      ]\n    },\n    {\n      \"title\": \"Programmer Analyst Intern\",\n      \"company\": \"Cognizant Technology Solutions\",\n      \"location\": \"Hyderabad, India\",\n      \"duration\": \"Feb 2021 – May 2021\",\n      \"highlights\": [\n        \"Led a team of 6 developers to deliver a full-stack app using React.js, Node.js, and Tailwind CSS.\",\n        \"Facilitated Agile standups, improving sprint efficiency and productivity by 30%.\",\n        \"Reduced API latency by 35% through optimized RESTful API integration.\"\n      ]\n    },\n    {\n      \"title\": \"Software Development Engineer\",\n      \"company\": \"coding.Studio();\",\n      \"location\": \"Hyderabad, India\",\n      \"duration\": \"Jan 2019 – Jan 2021\",\n      \"highlights\": [\n        \"Deployed a real-time app for 20K+ users on DigitalOcean.\",\n        \"Organized 12+ coding contests with 500+ participants, growing brand awareness by 40%.\"\n      ]\n    }\n  ],\n  \"projects\": [\n    {\n      \"title\": \"A.R.M.A (Automatic Request Management App)\",\n      \"link\": \"https://github.com/msaichaitanya735/A.R.M.A\",\n      \"highlights\": [\n        \"Built a cloud-based request management app using React.js, Spring Boot, and AWS.\",\n        \"Implemented CI/CD with Jenkins & Docker, reducing release cycles by 40% for 500+ daily users.\"\n      ]\n    },\n    {\n      \"title\": \"E-Commerce Platform for EV Merchant\",\n      \"link\": \"https://shrisaielectric.netlify.app/\",\n      \"highlights\": [\n        \"Engineered student request platform reducing processing time by 20%.\",\n        \"Built MERN-based app, improving speed by 40% with responsive design.\"\n      ]\n    }\n  ],\n  \"technologies\": {\n    \"languages\": [\"Python\", \"C\", \"C++\", \"Java\"],\n    \"frontend\": [\"React.js\", \"Redux\", \"TypeScript\", \"JavaScript (ES6+)\", \"HTML\", \"Tailwind CSS\", \"Bootstrap\", \"Material UI\"],\n    \"backend\": [\"Node.js\", \"Express.js\", , \"RESTful APIs\", \"Spring Boot\", \"Microservices\"],\n    \"cloud_and_devops\": [\"AWS (S3, EC2, Lambda, CloudFormation)\", \"CI/CD\"],\n    \"databases\": [\"SQL\", \"NoSQL\", \"MongoDB\"],\n    \"tools\": [\"Git\", \"Windows OS\", \"MacOS\"]\n  }\n}\n\n\n\n\n🛠️ Requirements:\n- Incorporate 8–12 relevant refined keywords naturally\n- Highlight 2–3 technologies/tools by name (from Frontend, Backend, DevOps, Cloud, or Databases)\n- Mention at least one measurable result (from resume highlights)\n- Add soft skills or role verbs if present in the refined keyword list\n- Tie the candidate’s strengths to the target company’s domain or product if possible\n\n🎯 Output: A single paragraph resume Summary — plain text only, no placeholders, no formatting symbols."
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -1320,
+        1240
+      ],
+      "id": "0965026e-5401-4c04-9d6b-92fc7aeb700f",
+      "name": "Basic LLM Chain6",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1300,
+        1100
+      ],
+      "id": "88363215-ea3e-4bb0-95ee-ce3859fa2164",
+      "name": "OpenRouter Chat Model6",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KVsqjlc99pwthAO6",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM",
+          "mode": "list",
+          "cachedResultName": "JobApplicationAutomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $('Webhook').item.json.body.rowIndex }}",
+            "Summary": "={{ $json.text }}",
+            "APPLICATOIN STATUS": "Building Summary"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPANY",
+              "displayName": "COMPANY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB TITLE",
+              "displayName": "JOB TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB DESCRIPTION",
+              "displayName": "JOB DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED COVER LETTER LINK",
+              "displayName": "GENERATED COVER LETTER LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED RESUME LINK",
+              "displayName": "GENERATED RESUME LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "APPLICATOIN STATUS",
+              "displayName": "APPLICATOIN STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misson and Values",
+              "displayName": "Misson and Values",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills(Keywords Extracted)",
+              "displayName": "Skills(Keywords Extracted)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Refined Keywords",
+              "displayName": "Refined Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "General Cover Letter",
+              "displayName": "General Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalised Cover letter",
+              "displayName": "Personalised Cover letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Cover Letter",
+              "displayName": "Final Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EductionSection",
+              "displayName": "EductionSection",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -1000,
+        1220
+      ],
+      "id": "b40bc35a-c9ec-47fe-a43f-5d95e9ed377e",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3G95HAVCZ7KUxnEZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Resume Optimization Assistant.\n\n🎯 Goal: Enhance the Education section of a resume by generating one concise bullet point (1–2 lines) per degree, aligned with the job description or company mission.\n\n📌 Constraints:\n- Output must be an array of 2 bullets only.\n- No filler or extra text—only the structured array output.\n- Bullet must reflect CS topics or skills relevant to the JD (e.g., React, JS, APIs, Git, HTML/CSS, Redux, TypeScript, programming paradigms).\n\n📤 Output format:\n{\n  \"education\": [\n    \"Bullet for MS in Computer Science\",\n    \"Bullet for BTech in Computer Science\"\n  ]\n}\n\n🧾 Input:\nJob Description:{{ $('Webhook').item.json.body.rowData['JOB DESCRIPTION'] }}\n\nEducation:\n1. University of Central Missouri, MS in Computer Science (Aug 2023 – May 2025)\n2. JNTU Hyderabad, BTech in Computer Science (Aug 2017 – May 2021)\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -800,
+        1240
+      ],
+      "id": "12cb25a0-e1de-40c2-9a3c-b6eead99abd2",
+      "name": "Basic LLM Chain7",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        1100
+      ],
+      "id": "7dc426c2-a368-4db4-85f5-a7ea5749a851",
+      "name": "OpenRouter Chat Model7",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KVsqjlc99pwthAO6",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM",
+          "mode": "list",
+          "cachedResultName": "JobApplicationAutomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "EductionSection": "={{ $json.text }}",
+            "RowID": "={{ $('Webhook').item.json.body.rowIndex }}"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPANY",
+              "displayName": "COMPANY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB TITLE",
+              "displayName": "JOB TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB DESCRIPTION",
+              "displayName": "JOB DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED COVER LETTER LINK",
+              "displayName": "GENERATED COVER LETTER LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED RESUME LINK",
+              "displayName": "GENERATED RESUME LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "APPLICATOIN STATUS",
+              "displayName": "APPLICATOIN STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misson and Values",
+              "displayName": "Misson and Values",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills(Keywords Extracted)",
+              "displayName": "Skills(Keywords Extracted)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Refined Keywords",
+              "displayName": "Refined Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "General Cover Letter",
+              "displayName": "General Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalised Cover letter",
+              "displayName": "Personalised Cover letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Cover Letter",
+              "displayName": "Final Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EductionSection",
+              "displayName": "EductionSection",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -440,
+        1240
+      ],
+      "id": "b9e6a744-b86f-4f8c-8c00-f4b3010e9977",
+      "name": "Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3G95HAVCZ7KUxnEZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Return ONLY LaTeX-formatted output using this structure:\n\n- For each category in the input:\n  - Start with: \\begin{onecolentry}\n  - Use: \\textbf{CategoryName:} followed by comma-separated skills\n  - End with: \\end{onecolentry}\n\nValid categories (include only if present in input and non-empty):\n• Languages  \n• Frontend Development  \n• Backend Development  \n• Cloud and DevOps  \n• Databases  \n• Testing & Debugging  \n• Tools and More\n\nInput Skills:  {{ $('Updating Refined Keywords').item.json['Refined Keywords'] }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -240,
+        1240
+      ],
+      "id": "b32913bd-b2c6-48dd-8e76-6ea76466afe6",
+      "name": "Basic LLM Chain8",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        1100
+      ],
+      "id": "d253e82e-bfff-463c-bade-a026aac1e223",
+      "name": "OpenRouter Chat Model8",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KVsqjlc99pwthAO6",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM",
+          "mode": "list",
+          "cachedResultName": "JobApplicationAutomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $('Webhook').item.json.body.rowIndex }}",
+            "Skills": "={{ $json.text }}"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPANY",
+              "displayName": "COMPANY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB TITLE",
+              "displayName": "JOB TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB DESCRIPTION",
+              "displayName": "JOB DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED COVER LETTER LINK",
+              "displayName": "GENERATED COVER LETTER LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED RESUME LINK",
+              "displayName": "GENERATED RESUME LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "APPLICATOIN STATUS",
+              "displayName": "APPLICATOIN STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misson and Values",
+              "displayName": "Misson and Values",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills(Keywords Extracted)",
+              "displayName": "Skills(Keywords Extracted)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Refined Keywords",
+              "displayName": "Refined Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "General Cover Letter",
+              "displayName": "General Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalised Cover letter",
+              "displayName": "Personalised Cover letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Cover Letter",
+              "displayName": "Final Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EductionSection",
+              "displayName": "EductionSection",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        140,
+        1240
+      ],
+      "id": "723ed5ee-77a3-4143-bc77-f0b8162207b8",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3G95HAVCZ7KUxnEZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "= You are an ATS-optimized Resume Bullet Point Generator for LaTeX resumes.Your task is to write 5 bullet points for each work experience entry. You are provided with:\n-The candidate’s existing job experience, including title, company, location, duration, and the first bullet (keep it unchanged)- A set of refined keywords aligned with both the job description and the candidate's resume.\n📌 Format Requirements: Return JSON\n{\n\"Programmer Analyst\": \" \",\n\"Programmer Analyst Intern\": \" \",\n\"Software Development Engineer\": \" \",\n}\n4. Each Bullet in the string must:\n- Begin with `\\item` (NOT in quotes).\n- Escape percentage signs using `\\%`.\n-use this `\\textbf{ }` to bold required words from refined skills \n5. The first bullet point must remain unchanged.\n6. Use one line per bullet (no wrapping or newlines).\n7. Do **not** return any explanations, metadata, or extra text — **only the output block.**\nContent Rules:\n- Incorporate as many unused refined keywords as possible across all roles.\n- Use action verbs from `Role Functions`, without repeating the same verb more than twice per role.\n- Embed `Soft Skills`, `Hard Skills`, and `Embedded Keywords` naturally.\n- Quantify results (% impact, speed, etc.) when possible.\n- Prioritize technical depth and real project impact.\n- Ensure the tone is action-oriented and concise (resume-style).\n- Distribute skills smartly across all roles to avoid redundancy.\n            \n            💡 Refined Keywords: {{ $('Updating Refined Keywords').item.json['Refined Keywords'] }}\n            \n            💼 Input Experience:\n            \"experience\": [\n    {\n      \"title\": \"Programmer Analyst\",\n      \"company\": \"Cognizant Technology Solutions (Client: Pearson)\",\n      \"location\": \"Hyderabad, India\",\n      \"duration\": \"Jul 2021 – Jun 2023\",\n      \"highlights\": [\n        \"Optimized Pearson's website UI performance by 40% and reduced rendering time by 30% using React.js, Next.js, and TypeScript—enhancing user experience and site efficiency at scale.\"\n      ]\n    },\n    {\n      \"title\": \"Programmer Analyst Intern\",\n      \"company\": \"Cognizant Technology Solutions\",\n      \"location\": \"Hyderabad, India\",\n      \"duration\": \"Feb 2021 – May 2021\",\n      \"highlights\": [\n        \"Led a team of 6 developers to deliver a full-stack application using React.js, Node.js, and Tailwind CSS, accelerating feature delivery and reducing API latency by 35%.\"\n      ]\n    },\n    {\n      \"title\": \"Software Development Engineer\",\n      \"company\": \"coding.Studio();\",\n      \"location\": \"Hyderabad, India\",\n      \"duration\": \"Jan 2019 – Jan 2021\",\n      \"highlights\": [\n        \"Deployed a real-time web application for 20K+ users on DigitalOcean and organized 12+ coding contests, boosting brand visibility by 40%.\"\n      ]\n    }\n  ]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        280,
+        1180
+      ],
+      "id": "2a739993-7407-4288-ae12-745f9da11ab7",
+      "name": "Basic LLM Chain9",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo-1106",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        280,
+        1020
+      ],
+      "id": "2b59655f-3666-4716-9e90-59b3a115dacd",
+      "name": "OpenRouter Chat Model9",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KVsqjlc99pwthAO6",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM",
+          "mode": "list",
+          "cachedResultName": "JobApplicationAutomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $('Webhook').item.json.body.rowIndex }}",
+            "Experience": "={{ $json.text }}"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPANY",
+              "displayName": "COMPANY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB TITLE",
+              "displayName": "JOB TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB DESCRIPTION",
+              "displayName": "JOB DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED COVER LETTER LINK",
+              "displayName": "GENERATED COVER LETTER LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED RESUME LINK",
+              "displayName": "GENERATED RESUME LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "APPLICATOIN STATUS",
+              "displayName": "APPLICATOIN STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misson and Values",
+              "displayName": "Misson and Values",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills(Keywords Extracted)",
+              "displayName": "Skills(Keywords Extracted)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Refined Keywords",
+              "displayName": "Refined Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "General Cover Letter",
+              "displayName": "General Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalised Cover letter",
+              "displayName": "Personalised Cover letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Cover Letter",
+              "displayName": "Final Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EductionSection",
+              "displayName": "EductionSection",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Experience",
+              "displayName": "Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        1240
+      ],
+      "id": "1d70365d-6d54-41dc-a82f-923f06614715",
+      "name": "Google Sheets4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3G95HAVCZ7KUxnEZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Return ONLY LaTeX-formatted output using this structure: You are a Resume Project Optimizer.\nFrom the provided list of projects and keywords, select  3 most relevant projects that best match the job requirements and write 3 detailed bullet points for each selected project maximizing refined keyword coverage.- Incorporate as many unused refined keywords as possible across all roles. - Use action verbs from `Role Functions`, without repeating the same verb more than twice per role.\n— do not use **markdown bold*\n- WRAP ALL KEY WORDS AND skills IN `\\textbf{ }`  in bullet points(needed)\n- Embed `Soft Skills`, `Hard Skills`, and `Embedded Keywords` naturally.\n- Quantify results (% impact, speed, etc.) when possible. (needed for every project) and Escape percentage signs using `\\%`.\n- Prioritize technical depth and real project impact.\n- Ensure the tone is action-oriented and concise (resume-style).\n- Distribute skills smartly across all roles to avoid redundancy.  \n-For each selected project, generate: -\n\\vspace{0.25 cm}\\begin{twocolentry}{\\href{<link>}{<displayed_link>}}\\textbf{<title>}\\end{twocolentry}\\begin{onecolentry}\\begin{highlights}\\item...\\item...\\end{highlights}\\end{onecolentry}-Use2–3bulletpointsperproject.Everybulletmustbeginwith\\item-Embedrelevanttechnologies,tools,andquantifiableresults.-Use**refinedkeywords**naturally(nokeywordstuffing).-Skipunrelatedorduplicateprojects.-Do**not**includeanyexplanationorJSONstructure.📥Input:MyProjects:\"projects\":[ {  \"title\":\"A.R.M.A (Automatic Request Management App)\",\"displayed_link\"github.com/msaic/A.R.M.A\",  \"link\":\"https://github.com/msaichaitanya735/A.R.M.A\",  \"type\":\"University Project\",    }, {  \"title\":\"E-Commerce Platform for EV Merchant\",\"displayed_link\":\"shrisaielectric.netlify.app/\",  \"link\":\"https://shrisaielectric.netlify.app/\",  \"type\":\"Freelance Project\",    }, {  \"title\":\"Private Mailing System\",\"displayed_lin\":\"github.com/msaic/Private\",  \"link\":\"https://github.com/msaichaitanya735/Private\",  \"type\":\"University Project\",    }, {  \"title\":\"Inventory Management System\",  \"displayed_link\":\"github.com/msaic/IMS\"  \"link\":\"https://github.com/msaichaitanya735/Inventory-Client\",  \"type\":\"Cloud Project\",    }]-RefinedKeywords:  {{ $('Basic LLM Chain1').item.json.text }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        940,
+        1240
+      ],
+      "id": "3a660b3d-6dbc-44e7-8186-21601e49efec",
+      "name": "Basic LLM Chain10",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        980,
+        1080
+      ],
+      "id": "b1b0ce6e-4c8e-49c5-9a92-94d12679e29f",
+      "name": "OpenRouter Chat Model10",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KVsqjlc99pwthAO6",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM",
+          "mode": "list",
+          "cachedResultName": "JobApplicationAutomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j7eGIG5A6EP-YglsfO0wRtaoH1tno7tSeb96R12SaHM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $('Webhook').item.json.body.rowIndex }}",
+            "Project": "={{ $json.text }}",
+            "APPLICATOIN STATUS": "Updating Project section"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPANY",
+              "displayName": "COMPANY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB TITLE",
+              "displayName": "JOB TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "JOB DESCRIPTION",
+              "displayName": "JOB DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED COVER LETTER LINK",
+              "displayName": "GENERATED COVER LETTER LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GENERATED RESUME LINK",
+              "displayName": "GENERATED RESUME LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "APPLICATOIN STATUS",
+              "displayName": "APPLICATOIN STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misson and Values",
+              "displayName": "Misson and Values",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills(Keywords Extracted)",
+              "displayName": "Skills(Keywords Extracted)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Refined Keywords",
+              "displayName": "Refined Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "General Cover Letter",
+              "displayName": "General Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalised Cover letter",
+              "displayName": "Personalised Cover letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Cover Letter",
+              "displayName": "Final Cover Letter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EductionSection",
+              "displayName": "EductionSection",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Experience",
+              "displayName": "Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Project",
+              "displayName": "Project",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1320,
+        1240
+      ],
+      "id": "b78fe9df-ee1d-479a-885f-b5fcbe765657",
+      "name": "Google Sheets6",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3G95HAVCZ7KUxnEZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "839e0223-9940-4862-be8f-075e3a75bdba",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1240,
+        1500
+      ],
+      "id": "25a3d1a2-bd02-49fc-b5c4-dd7360c79d41",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1060,
+        1500
+      ],
+      "id": "ee85dd2e-3a55-4cb1-84ce-23abece69158",
+      "name": "Wait2",
+      "webhookId": "0aa6ec7a-04d5-4644-81aa-4e16ecfaead0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "839e0223-9940-4862-be8f-075e3a75bdba",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -720,
+        1520
+      ],
+      "id": "727f6b74-16eb-44fe-aca5-34be5bcf45ed",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -500,
+        1540
+      ],
+      "id": "d68539fe-ecc3-4705-8d1b-764c5215cf44",
+      "name": "Wait4",
+      "webhookId": "0aa6ec7a-04d5-4644-81aa-4e16ecfaead0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "839e0223-9940-4862-be8f-075e3a75bdba",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        300,
+        1460
+      ],
+      "id": "260c12b9-22b8-40a8-87a0-dd560b2d28a8",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        1480
+      ],
+      "id": "266202e0-7ab4-45c5-b8dd-59138064fbed",
+      "name": "Wait5",
+      "webhookId": "0aa6ec7a-04d5-4644-81aa-4e16ecfaead0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "839e0223-9940-4862-be8f-075e3a75bdba",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1000,
+        1480
+      ],
+      "id": "bb7043d9-b7d4-42c4-bafb-d9e0484a3333",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        1500
+      ],
+      "id": "743fe2ee-a780-4da8-afc6-6ae267e6bb1d",
+      "name": "Wait6",
+      "webhookId": "0aa6ec7a-04d5-4644-81aa-4e16ecfaead0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "839e0223-9940-4862-be8f-075e3a75bdba",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -180,
+        1480
+      ],
+      "id": "9f373061-89c4-477b-a026-27d001157e57",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        40,
+        1480
+      ],
+      "id": "cf85411e-fe7a-43de-88ae-303998a6b349",
+      "name": "Wait7",
+      "webhookId": "0aa6ec7a-04d5-4644-81aa-4e16ecfaead0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "839e0223-9940-4862-be8f-075e3a75bdba",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -760,
+        880
+      ],
+      "id": "90911c8f-7e1e-46c1-a9b3-e80a4e0f81aa",
+      "name": "If8"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -540,
+        920
+      ],
+      "id": "1cb24e66-24c4-467d-b811-d2be8a1fa46f",
+      "name": "Wait8",
+      "webhookId": "0aa6ec7a-04d5-4644-81aa-4e16ecfaead0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "839e0223-9940-4862-be8f-075e3a75bdba",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1300,
+        900
+      ],
+      "id": "77472b55-98da-4d20-aedf-524ad38adb2d",
+      "name": "If9"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1080,
+        940
+      ],
+      "id": "305b03a0-4cce-491a-882c-7b7531a29e65",
+      "name": "Wait9",
+      "webhookId": "0aa6ec7a-04d5-4644-81aa-4e16ecfaead0"
+    },
+    {
+      "parameters": {
+        "jsCode": "$('Google Sheets4').first().json.Experience// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        1240
+      ],
+      "id": "b6166eb2-2471-4043-8952-c3d844b1e069",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updating KeyWords": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updating Refined Keywords": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain6",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain8",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain6": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain6",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain7",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain7": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain8",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain8": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain9",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain9": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets4": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model10": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain10",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain10": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait7": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [
+          {
+            "node": "Updating Refined Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "Updating KeyWords",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait9": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait8": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets6": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "56f5bda7-0f0f-4070-b083-93172fadd0f8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3db9c2a85ee688b9e5d4fd33c4a55e797f28845301ead2e59fd6c754dc8d03da"
+  },
+  "id": "QnQJqTDqDFHFV03q",
+  "tags": []
+}
