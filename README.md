@@ -58,7 +58,7 @@ AI_RA/
 
 ## 🧩 Architecture Diagram
 
-_(To be added in `images/architecture-diagram.png`)_
+(./images/architecture-diagram.png)
 
 ```
 Google Sheets → Apps Script → Webhook → n8n (Docker) → GPT → Regex → LaTeX → Overleaf (manual PDF) → Google Drive (planned)
@@ -76,7 +76,7 @@ We are actively transforming AI_RA into a **full-stack web platform** with:
 - ☁️ Login & cloud-based data access
 - 🧾 PDF resume export via automated LaTeX
 
-More details in [`future_automation.md`](./docs/future_automation.md)
+More details in [`future_automation.md`](./future_automation.md)
 
 ---
 
